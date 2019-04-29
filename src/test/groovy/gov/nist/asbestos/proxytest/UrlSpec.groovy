@@ -63,7 +63,7 @@ class UrlSpec extends Specification {
 
 
 
-    def 'post to proxy - no channel' () {
+    def 'post to proxy - no actor' () {
         when:
         def rc = post('http://localhost:8080/fproxy_war/prox/default__1', '{"message":"this is a message"}')
 
@@ -71,22 +71,22 @@ class UrlSpec extends Specification {
         rc == 403  //
     }
 
-
-    def 'create channel again' () {
+    def 'post to actor balloon - no transaction' () {
         when:
-        def rc = post('http://localhost:8080/fproxy_war/prox',
-                '''
-{
-  "environment": "default",
-  "testSession": "default",
-  "simId": "1",
-  "actorType": "balloon"
-}
-''')
+        def rc = post('http://localhost:8080/fproxy_war/prox/default__1/balloon', '{"message":"this is a message"}')
 
         then:
-        rc == 403
+        rc == 403  //
     }
+
+    def 'post to actor balloon' () {
+        when:
+        def rc = post('http://localhost:8080/fproxy_war/prox/default__1/balloon/pop', '{"message":"this is a message"}')
+
+        then:
+        rc == 200  //
+    }
+
 
     def post(String url, String json) {
         http('POST', url, json)
