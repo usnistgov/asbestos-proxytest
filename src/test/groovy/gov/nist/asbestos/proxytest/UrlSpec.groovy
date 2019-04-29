@@ -5,32 +5,101 @@ import spock.lang.Specification
 class UrlSpec extends Specification {
 
 
-    def 'foo' () {
+    def 'create channel' () {
         when:
-        HttpURLConnection post = new URL('http://localhost:8080/fproxy_war').openConnection()
-        def message = '{"message":"this is a message"}'
-        post.setRequestMethod("POST")
-        post.setDoOutput(true)
-        post.setRequestProperty("Content-Type", "application/json")
-        post.getOutputStream().write(message.getBytes("UTF-8"))
-        def postRC = post.getResponseCode();
+        def rc = post('http://localhost:8080/fproxy_war/prox',
+                '''
+{
+  "environment": "default",
+  "testSession": "default",
+  "simId": "1",
+  "actorType": "balloon"
+}
+''')
 
         then:
-        postRC == 200
+        rc == 201 || rc == 200
+    }
+
+    def 'delete channel' () {
+        when:
+        def rc = http('DELETE', 'http://localhost:8080/fproxy_war/prox/default__1', null)
+
+        then:
+        rc == 200
+    }
+
+    def 'recreate channel' () {
+        when:
+        def rc = post('http://localhost:8080/fproxy_war/prox',
+                '''
+{
+  "environment": "default",
+  "testSession": "default",
+  "simId": "1",
+  "actorType": "balloon"
+}
+''')
+
+        then:
+        rc == 201
+    }
+
+    def 're-recreate channel' () {
+        when:
+        def rc = post('http://localhost:8080/fproxy_war/prox',
+                '''
+{
+  "environment": "default",
+  "testSession": "default",
+  "simId": "1",
+  "actorType": "balloon"
+}
+''')
+
+        then:
+        rc == 200
     }
 
 
-    def 'bar' () {
+
+    def 'post to proxy - no channel' () {
         when:
-        HttpURLConnection post = new URL('http://localhost:8888/sim/default__rr/reg/rb').openConnection()
-        def message = '{"message":"this is a message"}'
-        post.setRequestMethod("POST")
-        post.setDoOutput(true)
-        post.setRequestProperty("Content-Type", "application/json")
-        post.getOutputStream().write(message.getBytes("UTF-8"))
-        def postRC = post.getResponseCode();
+        def rc = post('http://localhost:8080/fproxy_war/prox/default__1', '{"message":"this is a message"}')
 
         then:
-        postRC == 200
+        rc == 403  //
     }
+
+
+    def 'create channel again' () {
+        when:
+        def rc = post('http://localhost:8080/fproxy_war/prox',
+                '''
+{
+  "environment": "default",
+  "testSession": "default",
+  "simId": "1",
+  "actorType": "balloon"
+}
+''')
+
+        then:
+        rc == 403
+    }
+
+    def post(String url, String json) {
+        http('POST', url, json)
+    }
+
+    def http(String op, String url, String json) {
+        HttpURLConnection http = new URL(url).openConnection()
+        http.setRequestMethod(op)
+        http.setDoOutput(true)
+        http.setRequestProperty("Content-Type", "application/json")
+        if (json)
+            http.getOutputStream().write(json.getBytes("UTF-8"))
+        http.getResponseCode()
+    }
+
 }
