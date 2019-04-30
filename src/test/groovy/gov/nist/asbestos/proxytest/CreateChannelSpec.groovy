@@ -2,7 +2,7 @@ package gov.nist.asbestos.proxytest
 
 import spock.lang.Specification
 
-class UrlSpec extends Specification {
+class CreateChannelSpec extends Specification {
 
 
     def 'create channel' () {
@@ -13,7 +13,9 @@ class UrlSpec extends Specification {
   "environment": "default",
   "testSession": "default",
   "simId": "1",
-  "actorType": "balloon"
+  "actorType": "balloon",
+  "a": "x",
+  "b": "y"
 }
 ''')
 
@@ -53,8 +55,7 @@ class UrlSpec extends Specification {
   "environment": "default",
   "testSession": "default",
   "simId": "1",
-  "actorType": "balloon"
-}
+  "actorType": "balloon"}
 ''')
 
         then:
