@@ -4,7 +4,7 @@ import ca.uhn.fhir.context.FhirContext
 import ca.uhn.fhir.model.primitive.IdDt
 import ca.uhn.fhir.rest.api.MethodOutcome
 import ca.uhn.fhir.rest.client.api.IGenericClient
-import org.hl7.fhir.instance.model.Bundle
+import gov.nist.asbestos.adapter.HttpPost
 import org.hl7.fhir.dstu3.model.Patient
 import spock.lang.Shared
 import spock.lang.Specification
@@ -32,7 +32,7 @@ class HapiTest extends Specification {
 
     def 'fhir create patient through proxy' () {
         setup:
-        withBase('http://localhost:8080/fproxy_war/prox')
+        withBase("http://localhost:8080/fproxy_war/prox/${createChannel('default', 'patient1')}")
 
         when:
         Patient patient = new Patient();
@@ -44,6 +44,20 @@ class HapiTest extends Specification {
         then:
         id
 
+    }
+
+    String createChannel(String testSession, String id) {
+        def json = '''
+{
+  "environment": "default",
+  "testSession": "testSessionName",
+  "simId": "simIdName",
+  "actorType": "balloon"}
+'''.replace('testSessionName', testSession).replace('simIdName', id)
+
+        def rc = HttpPost.postJson('http://localhost:8080/fproxy_war/prox', json)
+        assert rc in [200, 201]
+        "${testSession}__${id}"
     }
 
     def withBase(String base) {
