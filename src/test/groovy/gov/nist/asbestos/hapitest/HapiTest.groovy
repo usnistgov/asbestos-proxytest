@@ -4,7 +4,7 @@ import ca.uhn.fhir.context.FhirContext
 import ca.uhn.fhir.model.primitive.IdDt
 import ca.uhn.fhir.rest.api.MethodOutcome
 import ca.uhn.fhir.rest.client.api.IGenericClient
-import gov.nist.asbestos.adapter.HttpPost
+import gov.nist.asbestos.simapi.http.HttpPost
 import org.hl7.fhir.dstu3.model.Patient
 import spock.lang.Shared
 import spock.lang.Specification
@@ -52,7 +52,8 @@ class HapiTest extends Specification {
   "environment": "default",
   "testSession": "testSessionName",
   "simId": "simIdName",
-  "actorType": "balloon"}
+  "actorType": "balloon",
+  "fhirBase": "http://localhost:8081/fhir/"}
 '''.replace('testSessionName', testSession).replace('simIdName', id)
 
         def rc = HttpPost.postJson('http://localhost:8080/fproxy_war/prox', json)

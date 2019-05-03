@@ -1,7 +1,5 @@
 package gov.nist.asbestos.proxytest
 
-
-import gov.nist.asbestos.adapter.HttpPost
 import spock.lang.Specification
 
 class CreateChannelSpec extends Specification {
