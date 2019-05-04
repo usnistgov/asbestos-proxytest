@@ -32,7 +32,7 @@ class HapiTest extends Specification {
 
     def 'fhir create patient through proxy' () {
         setup:
-        withBase("http://localhost:8080/fproxy_war/prox/${createChannel('default', 'patient1')}")
+        withBase("http://localhost:8081/fproxy_war/prox/${createChannel('default', 'patient1')}")
 
         when:
         Patient patient = new Patient();
@@ -53,10 +53,10 @@ class HapiTest extends Specification {
   "testSession": "testSessionName",
   "simId": "simIdName",
   "actorType": "balloon",
-  "fhirBase": "http://localhost:8081/fhir/"}
+  "fhirBase": "http://localhost:8080/fhir/fhir/"}
 '''.replace('testSessionName', testSession).replace('simIdName', id)
 
-        def rc = HttpPost.postJson('http://localhost:8080/fproxy_war/prox', json)
+        def rc = HttpPost.postJson('http://localhost:8081/fproxy_war/prox', json)
         assert rc in [200, 201]
         "${testSession}__${id}"
     }
