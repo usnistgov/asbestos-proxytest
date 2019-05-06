@@ -52,12 +52,13 @@ class HapiTest extends Specification {
   "environment": "default",
   "testSession": "testSessionName",
   "simId": "simIdName",
-  "actorType": "balloon",
+  "actorType": "fhir",
   "fhirBase": "http://localhost:8080/fhir/fhir/"}
 '''.replace('testSessionName', testSession).replace('simIdName', id)
 
-        def rc = HttpPost.postJson('http://localhost:8081/fproxy_war/prox', json)
-        assert rc in [200, 201]
+        HttpPost poster = new HttpPost()
+        poster.postJson('http://localhost:8081/fproxy_war/prox', json)
+        assert poster.status in [200, 201]
         "${testSession}__${id}"
     }
 
