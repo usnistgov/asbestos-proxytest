@@ -12,7 +12,7 @@ class CreateChannelSpec extends Specification {
 {
   "environment": "default",
   "testSession": "default",
-  "simId": "1",
+  "channelId": "1",
   "actorType": "balloon",
   "a": "x",
   "b": "y"
@@ -38,7 +38,7 @@ class CreateChannelSpec extends Specification {
 {
   "environment": "default",
   "testSession": "default",
-  "simId": "1",
+  "channelId": "1",
   "actorType": "balloon"
 }
 ''')
@@ -54,7 +54,7 @@ class CreateChannelSpec extends Specification {
 {
   "environment": "default",
   "testSession": "default",
-  "simId": "1",
+  "channelId": "1",
   "actorType": "balloon"}
 ''')
 

@@ -52,7 +52,7 @@ class HapiTest extends Specification {
 {
   "environment": "default",
   "testSession": "testSessionName",
-  "simId": "simIdName",
+  "channelId": "simIdName",
   "actorType": "fhir",
   "channelType": "passthrough",
   "fhirBase": "http://localhost:8080/fhir/fhir/"}
