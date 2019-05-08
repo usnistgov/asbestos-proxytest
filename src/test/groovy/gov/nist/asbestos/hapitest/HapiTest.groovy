@@ -6,6 +6,7 @@ import ca.uhn.fhir.rest.api.MethodOutcome
 import ca.uhn.fhir.rest.client.api.IGenericClient
 import gov.nist.asbestos.simapi.http.HttpPost
 import org.hl7.fhir.dstu3.model.Patient
+import org.hl7.fhir.instance.model.api.IIdType
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -81,8 +82,8 @@ class HapiTest extends Specification {
         // resource, the OperationOutcome response, etc. (assuming that
         // any of these things were provided by the server! They may not
         // always be)
-        IdDt id = (IdDt) outcome.getId();
-        System.out.println("Got ID: " + id.getValue());
+        IIdType id = (IIdType) outcome.getId();
+        System.out.println("Got ID: " + id.value);
         id.value
     }
 
