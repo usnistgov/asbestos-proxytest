@@ -54,6 +54,7 @@ class HapiTest extends Specification {
   "testSession": "testSessionName",
   "simId": "simIdName",
   "actorType": "fhir",
+  "channelType": "passthrough",
   "fhirBase": "http://localhost:8080/fhir/fhir/"}
 '''.replace('testSessionName', testSession).replace('simIdName', id)
 
