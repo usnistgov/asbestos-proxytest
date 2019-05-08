@@ -33,7 +33,7 @@ class HapiTest extends Specification {
 
     def 'fhir create patient through proxy' () {
         setup:
-        withBase("http://localhost:8081/fproxy_war/prox/${createChannel('default', 'patient1')}")
+        withBase("http://localhost:8081/fproxy_war/prox/${createChannel('default', 'fhirpass')}")
 
         when:
         Patient patient = new Patient();
