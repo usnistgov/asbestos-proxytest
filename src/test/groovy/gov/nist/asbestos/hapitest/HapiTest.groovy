@@ -43,6 +43,19 @@ class HapiTest extends Specification {
         // in alphabetical order
         items[0].resource == 'Patient'
         items[1].resource == 'metadata'
+
+        when: // pull only the last log event
+        getter.getJson("http://localhost:8081/fproxy_war/prox/default__fhirpass/Event?_last=1")
+
+        then:
+        getter.status == 200
+
+        when:
+        items = EventStoreItemFactory.parse(getter.responseText)
+
+        then:
+        items.size() == 1
+        items[0].resource == 'Patient'
     }
 
     void deleteChannel() {
