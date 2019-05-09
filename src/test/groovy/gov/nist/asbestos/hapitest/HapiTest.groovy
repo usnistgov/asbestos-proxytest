@@ -3,6 +3,7 @@ package gov.nist.asbestos.hapitest
 import ca.uhn.fhir.context.FhirContext
 import ca.uhn.fhir.rest.api.MethodOutcome
 import ca.uhn.fhir.rest.client.api.IGenericClient
+import ca.uhn.fhir.rest.client.interceptor.LoggingInterceptor
 import gov.nist.asbestos.simapi.http.HttpDelete
 import gov.nist.asbestos.simapi.http.HttpGet
 import gov.nist.asbestos.simapi.http.HttpPost
@@ -27,10 +28,10 @@ class HapiTest extends Specification {
         // ..populate the patient object..
         patient.addIdentifier().setSystem("urn:system").setValue("12345");
         patient.addName().setFamily("Smith").addGiven("John");
-        def id = createPatient(patient)
+        def location = createPatient(patient)
 
         then:  // if successful then id assigned
-        id
+        location
 
         when: // pull logs
         HttpGet getter = new HttpGet()
@@ -56,6 +57,16 @@ class HapiTest extends Specification {
         then:
         items.size() == 1
         items[0].resource == 'Patient'
+
+        when:  // read back the Patient
+        def readId = idFromUrl(cleanUrl(location))
+        Patient thePatient = client.read()
+        .resource(Patient)
+        .withId(readId)
+        .execute()
+
+        then:
+        thePatient
     }
 
     void deleteChannel() {
@@ -81,6 +92,13 @@ class HapiTest extends Specification {
 
     def withBase(String base) {
         client = ctx.newRestfulGenericClient(base)
+
+        LoggingInterceptor loggingInterceptor = new LoggingInterceptor()
+        loggingInterceptor.setLogRequestHeaders(true)
+        loggingInterceptor.setLogRequestBody(true)
+        loggingInterceptor.setLogResponseHeaders(true)
+        loggingInterceptor.setLogResponseBody(true)
+        client.registerInterceptor(loggingInterceptor)
     }
 
     String createPatient(Patient patient) {
@@ -101,6 +119,17 @@ class HapiTest extends Specification {
         IIdType id = (IIdType) outcome.getId();
         System.out.println("Got ID: " + id.value);
         id.value
+    }
+
+    String cleanUrl(String url) {
+        url = url.split('_',2)[0]
+        url = url.substring(0, url.size()-1)  // remove trailing /
+        url
+    }
+
+    String idFromUrl(String url) {
+        String[] parts = url.split('/')
+        parts[-1]
     }
 
 }
