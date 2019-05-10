@@ -9,6 +9,7 @@ import gov.nist.asbestos.simapi.http.HttpGet
 import gov.nist.asbestos.simapi.http.HttpPost
 import gov.nist.asbestos.simapi.sim.basic.EventStoreItem
 import gov.nist.asbestos.simapi.sim.basic.EventStoreItemFactory
+import org.hl7.fhir.dstu3.model.Bundle
 import org.hl7.fhir.dstu3.model.Patient
 import org.hl7.fhir.instance.model.api.IIdType
 import spock.lang.Shared
@@ -67,6 +68,18 @@ class HapiTest extends Specification {
 
         then:
         thePatient
+
+        when: // search for all Patients with family name Smith
+        Bundle bundle = client.search()
+        .forResource(Patient.class)
+        .where(Patient.GIVEN.matches().values(['Smith']))
+        .returnBundle(Bundle.class)
+        .execute()
+        println "Found ${bundle.entry.size()} Patients"
+
+        then:
+        !bundle.empty
+        bundle.entry.size() > 0
     }
 
     void deleteChannel() {
@@ -81,7 +94,7 @@ class HapiTest extends Specification {
   "channelId": "simIdName",
   "actorType": "fhir",
   "channelType": "passthrough",
-  "fhirBase": "http://localhost:8080/fhir/fhir/"}
+  "fhirBase": "http://localhost:8080/fhir/fhir"}
 '''.replace('testSessionName', testSession).replace('simIdName', id)
 
         HttpPost poster = new HttpPost()
