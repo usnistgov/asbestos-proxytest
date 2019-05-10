@@ -4,11 +4,15 @@ import ca.uhn.fhir.context.FhirContext
 import ca.uhn.fhir.rest.api.MethodOutcome
 import ca.uhn.fhir.rest.client.api.IGenericClient
 import ca.uhn.fhir.rest.client.interceptor.LoggingInterceptor
+import gov.nist.asbestos.simapi.http.HttpBase
 import gov.nist.asbestos.simapi.http.HttpDelete
 import gov.nist.asbestos.simapi.http.HttpGet
 import gov.nist.asbestos.simapi.http.HttpPost
+import gov.nist.asbestos.simapi.http.ParameterBuilder
 import gov.nist.asbestos.simapi.sim.basic.EventStoreItem
 import gov.nist.asbestos.simapi.sim.basic.EventStoreItemFactory
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
 import org.hl7.fhir.dstu3.model.Bundle
 import org.hl7.fhir.dstu3.model.Patient
 import org.hl7.fhir.instance.model.api.IIdType
@@ -21,7 +25,7 @@ class HapiTest extends Specification {
 
     def 'fhir create patient through proxy' () {
         setup:  // create channel
-        deleteChannel()
+        deleteChannels()
         withBase("http://localhost:8081/fproxy_war/prox/${createChannel('default', 'fhirpass')}/Channel")
 
         when: // submit patient resource
@@ -107,20 +111,56 @@ class HapiTest extends Specification {
         bundle3.entry.size() == 0
     }
 
-    void deleteChannel() {
+    def 'create channel with get' () {
+        setup:
+        deleteChannels()
+
+        expect: // verify channel does not exist
+        new HttpGet().getJson("http://localhost:8081/fproxy_war/prox/default__test").status == 404
+        new HttpGet().getJson("http://localhost:8081/fproxy_war/prox/default__fhirpass").status == 404
+        new HttpGet().getJson("http://localhost:8081/fproxy_war/prox/default__abc").status == 404
+
+        when:
+        ParameterBuilder pb = new ParameterBuilder()
+        String request = createChannelRequest('default', 'test')
+        def jsonRequest = new JsonSlurper().parseText(request)
+        jsonRequest.each { String name, String value ->
+            pb.add(name, value)
+        }
+        HttpGet getter = new HttpGet()
+        getter.getJson(HttpBase.buildURI('http://localhost:8081/fproxy_war/prox', pb))
+        String response = getter.responseText
+        response = JsonOutput.prettyPrint(response)
+        def jsonReturned = new JsonSlurper().parseText(response)
+
+        then:
+        jsonRequest == jsonReturned
+
+        expect: // verify channel does exist
+        new HttpGet().getJson("http://localhost:8081/fproxy_war/prox/default__test").status == 200
+
+    }
+
+    void deleteChannels() {
         new HttpDelete().run("http://localhost:8081/fproxy_war/prox/default__fhirpass")
+        new HttpDelete().run("http://localhost:8081/fproxy_war/prox/default__test")
+    }
+
+    String createChannelRequest(String testSession, String id) {
+        JsonOutput.prettyPrint(
+                '''
+         {
+            "environment": "default",
+            "testSession": "testSessionName",
+            "channelId": "simIdName",
+            "actorType": "fhir",
+            "channelType": "passthrough",
+            "fhirBase": "http://localhost:8080/fhir/fhir"}
+        '''.replace('testSessionName', testSession).replace('simIdName', id))
     }
 
     String createChannel(String testSession, String id) {
-        def json = '''
-{
-  "environment": "default",
-  "testSession": "testSessionName",
-  "channelId": "simIdName",
-  "actorType": "fhir",
-  "channelType": "passthrough",
-  "fhirBase": "http://localhost:8080/fhir/fhir"}
-'''.replace('testSessionName', testSession).replace('simIdName', id)
+        def json = createChannelRequest(testSession, id)
 
         HttpPost poster = new HttpPost()
         poster.postJson(new URI('http://localhost:8081/fproxy_war/prox'), json)
