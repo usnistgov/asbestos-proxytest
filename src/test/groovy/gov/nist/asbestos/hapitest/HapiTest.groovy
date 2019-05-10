@@ -72,7 +72,7 @@ class HapiTest extends Specification {
         when: // search for all Patients with family name Smith
         Bundle bundle = client.search()
         .forResource(Patient.class)
-        .where(Patient.GIVEN.matches().values(['Smith']))
+        .where(Patient.FAMILY.matches().values(['Smith']))
         .returnBundle(Bundle.class)
         .execute()
         println "Found ${bundle.entry.size()} Patients"
