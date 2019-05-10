@@ -80,6 +80,31 @@ class HapiTest extends Specification {
         then:
         !bundle.empty
         bundle.entry.size() > 0
+
+        when: // search for all Patients with family name Smith and given name John
+        Bundle bundle2 = client.search()
+                .forResource(Patient.class)
+                .where(Patient.FAMILY.matches().values(['Smith']))
+                .and(Patient.GIVEN.matches().values(['John']))
+                .returnBundle(Bundle.class)
+                .execute()
+        println "Found ${bundle2.entry.size()} Patients"
+
+        then:
+        !bundle2.empty
+        bundle2.entry.size() > 0
+
+        when: // search for all Patients with family name Smith and given name Jack
+        Bundle bundle3 = client.search()
+                .forResource(Patient.class)
+                .where(Patient.FAMILY.matches().values(['Smith']))
+                .and(Patient.GIVEN.matches().values(['Jack']))
+                .returnBundle(Bundle.class)
+                .execute()
+        println "Found ${bundle3.entry.size()} Patients"
+
+        then:
+        bundle3.entry.size() == 0
     }
 
     void deleteChannel() {
@@ -98,7 +123,7 @@ class HapiTest extends Specification {
 '''.replace('testSessionName', testSession).replace('simIdName', id)
 
         HttpPost poster = new HttpPost()
-        poster.postJson('http://localhost:8081/fproxy_war/prox', json)
+        poster.postJson(new URI('http://localhost:8081/fproxy_war/prox'), json)
         assert poster.status in [200, 201]
         "${testSession}__${id}"
     }
