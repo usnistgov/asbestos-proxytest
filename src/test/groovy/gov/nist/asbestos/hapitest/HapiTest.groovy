@@ -23,6 +23,42 @@ class HapiTest extends Specification {
     @Shared FhirContext ctx = FhirContext.forDstu3()
     IGenericClient client
 
+    def setupSpec() {
+        deleteChannels()
+    }
+
+    def cleanupSpec() {
+        deleteChannels()
+    }
+
+    def 'test delete channel' () {
+        setup:
+        int status
+        withBase("http://localhost:8081/fproxy_war/prox/${createChannel('default', 'abc')}/Channel")
+
+        when:
+        status = new HttpDelete().run("http://localhost:8081/fproxy_war/prox/default__abc").status
+
+        then:
+        status == 200
+        !new File('/home/bill/ec/psimdb/default/abc').exists()
+
+        when:  // make sure
+        withBase("http://localhost:8081/fproxy_war/prox/${createChannel('default', 'abc')}/Channel")
+
+        then:
+        new File('/home/bill/ec/psimdb/default/abc').exists()
+
+        when:
+        int status1 = new HttpDelete().run("http://localhost:8081/fproxy_war/prox/default__abc").status
+        int status2 = new HttpDelete().run("http://localhost:8081/fproxy_war/prox/default__abc").status
+
+        then:
+        status1 == 200
+        status2 == 200
+        !new File('/home/bill/ec/psimdb/default/abc').exists()
+    }
+
     def 'fhir create patient through proxy' () {
         setup:  // create channel
         deleteChannels()
@@ -111,6 +147,24 @@ class HapiTest extends Specification {
         bundle3.entry.size() == 0
     }
 
+    def 'run with bad base url' () {
+        setup:  // create channel
+        deleteChannels()
+        // /Channel missing from end of uri
+        withBase("http://localhost:8081/fproxy_war/prox/${createChannel('default', 'fhirpass')}")
+
+        when: // submit patient resource
+        Patient patient = new Patient();
+        // ..populate the patient object..
+        patient.addIdentifier().setSystem("urn:system").setValue("12345");
+        patient.addName().setFamily("Smith").addGiven("John");
+        def location = createPatient(patient)
+
+        then:
+        thrown Exception
+
+    }
+
     def 'create channel with get' () {
         setup:
         deleteChannels()
@@ -144,6 +198,7 @@ class HapiTest extends Specification {
     void deleteChannels() {
         new HttpDelete().run("http://localhost:8081/fproxy_war/prox/default__fhirpass")
         new HttpDelete().run("http://localhost:8081/fproxy_war/prox/default__test")
+        new HttpDelete().run("http://localhost:8081/fproxy_war/prox/default__abc")
     }
 
     String createChannelRequest(String testSession, String id) {
