@@ -1,9 +1,8 @@
-package gov.nist.asbestos.hapitest
+package gov.nist.asbestos.proxytest
 
 import ca.uhn.fhir.context.FhirContext
 import ca.uhn.fhir.rest.api.MethodOutcome
 import ca.uhn.fhir.rest.client.api.IGenericClient
-import ca.uhn.fhir.rest.client.interceptor.LoggingInterceptor
 import gov.nist.asbestos.simapi.http.HttpBase
 import gov.nist.asbestos.simapi.http.HttpDelete
 import gov.nist.asbestos.simapi.http.HttpGet
@@ -19,9 +18,12 @@ import org.hl7.fhir.instance.model.api.IIdType
 import spock.lang.Shared
 import spock.lang.Specification
 
-class HapiTest extends Specification {
+class PassthroughTest extends Specification {
     @Shared FhirContext ctx = FhirContext.forDstu3()
     IGenericClient client
+
+    // TODO parameterize base url of proxy
+    // TODO discover location of EC instead of having it hard coded
 
     def setupSpec() {
         deleteChannels()
@@ -226,12 +228,12 @@ class HapiTest extends Specification {
     def withBase(String base) {
         client = ctx.newRestfulGenericClient(base)
 
-        LoggingInterceptor loggingInterceptor = new LoggingInterceptor()
-        loggingInterceptor.setLogRequestHeaders(true)
-        loggingInterceptor.setLogRequestBody(true)
-        loggingInterceptor.setLogResponseHeaders(true)
-        loggingInterceptor.setLogResponseBody(true)
-        client.registerInterceptor(loggingInterceptor)
+//        LoggingInterceptor loggingInterceptor = new LoggingInterceptor()
+//        loggingInterceptor.setLogRequestHeaders(true)
+//        loggingInterceptor.setLogRequestBody(true)
+//        loggingInterceptor.setLogResponseHeaders(true)
+//        loggingInterceptor.setLogResponseBody(true)
+//        client.registerInterceptor(loggingInterceptor)
     }
 
     String createPatient(Patient patient) {

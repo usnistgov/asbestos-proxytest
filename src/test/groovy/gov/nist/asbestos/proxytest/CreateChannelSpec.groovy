@@ -1,13 +1,22 @@
 package gov.nist.asbestos.proxytest
 
+import gov.nist.asbestos.simapi.http.HttpDelete
+import gov.nist.asbestos.simapi.http.HttpPost
 import spock.lang.Specification
 
 class CreateChannelSpec extends Specification {
+  // TODO parameterize base url of proxy
+    def setupSpec() {
+        new HttpDelete().run("http://localhost:8081/fproxy_war/prox/default__1")
+    }
 
+    def cleanupSpec() {
+        new HttpDelete().run("http://localhost:8081/fproxy_war/prox/default__1")
+    }
 
     def 'create channel' () {
         when:
-        def rc = HttpPost.postJson('http://localhost:8080/fproxy_war/prox',
+        def rc = new HttpPost().postJson(new URI('http://localhost:8081/fproxy_war/prox'),
                 '''
 {
   "environment": "default",
@@ -17,7 +26,7 @@ class CreateChannelSpec extends Specification {
   "a": "x",
   "b": "y"
 }
-''')
+''').status
 
         then:
         rc == 201 || rc == 200
@@ -25,7 +34,7 @@ class CreateChannelSpec extends Specification {
 
     def 'delete channel' () {
         when:
-        def rc = HttpPost.http('DELETE', 'http://localhost:8080/fproxy_war/prox/default__1', null)
+        def rc = new HttpDelete().run('http://localhost:8081/fproxy_war/prox/default__1').status
 
         then:
         rc == 200
@@ -33,7 +42,7 @@ class CreateChannelSpec extends Specification {
 
     def 'recreate channel' () {
         when:
-        def rc = HttpPost.postJson('http://localhost:8080/fproxy_war/prox',
+        def rc = new HttpPost().postJson(new URI('http://localhost:8081/fproxy_war/prox'),
                 '''
 {
   "environment": "default",
@@ -41,7 +50,7 @@ class CreateChannelSpec extends Specification {
   "channelId": "1",
   "actorType": "balloon"
 }
-''')
+''').status
 
         then:
         rc == 201
@@ -49,14 +58,14 @@ class CreateChannelSpec extends Specification {
 
     def 're-recreate channel' () {
         when:
-        def rc = HttpPost.postJson('http://localhost:8080/fproxy_war/prox',
+        def rc = new HttpPost().postJson(new URI('http://localhost:8081/fproxy_war/prox'),
                 '''
 {
   "environment": "default",
   "testSession": "default",
   "channelId": "1",
   "actorType": "balloon"}
-''')
+''').status
 
         then:
         rc == 200
@@ -66,26 +75,18 @@ class CreateChannelSpec extends Specification {
 
     def 'post to proxy - no actor' () {
         when:
-        def rc = HttpPost.postJson('http://localhost:8080/fproxy_war/prox/default__1', '{"message":"this is a message"}')
+        def rc = new HttpPost().postJson(new URI('http://localhost:8081/fproxy_war/prox/default__1'), '{"message":"this is a message"}').status
 
         then:
         rc == 403  //
     }
 
-    def 'post to actor balloon - no transaction' () {
+    def 'post to actor balloon - no resource' () {
         when:
-        def rc = HttpPost.postJson('http://localhost:8080/fproxy_war/prox/default__1/balloon', '{"message":"this is a message"}')
+        def rc = new HttpPost().postJson(new URI('http://localhost:8081/fproxy_war/prox/default__1/balloon'), '{"message":"this is a message"}').status
 
         then:
         rc == 403  //
-    }
-
-    def 'post to actor balloon' () {
-        when:
-        def rc = HttpPost.postJson('http://localhost:8080/fproxy_war/prox/default__1/balloon/pop', '{"message":"this is a message"}')
-
-        then:
-        rc == 200  //
     }
 
 }
