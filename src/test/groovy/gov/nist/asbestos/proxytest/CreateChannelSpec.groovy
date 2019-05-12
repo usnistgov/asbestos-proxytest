@@ -1,7 +1,7 @@
 package gov.nist.asbestos.proxytest
 
-import gov.nist.asbestos.simapi.http.HttpDelete
-import gov.nist.asbestos.simapi.http.HttpPost
+import gov.nist.asbestos.simapi.http.operations.HttpDelete
+import gov.nist.asbestos.simapi.http.operations.HttpPost
 import spock.lang.Specification
 
 class CreateChannelSpec extends Specification {
