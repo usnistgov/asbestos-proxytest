@@ -12,8 +12,8 @@ import gov.nist.asbestos.simapi.http.operations.HttpPost
 import gov.nist.asbestos.simapi.http.operations.ParameterBuilder
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
-import org.hl7.fhir.dstu3.model.Bundle
-import org.hl7.fhir.dstu3.model.Patient
+import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.instance.model.api.IIdType
 import spock.lang.Shared
 import spock.lang.Specification
