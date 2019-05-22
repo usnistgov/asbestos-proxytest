@@ -5,11 +5,11 @@ import ca.uhn.fhir.rest.api.MethodOutcome
 import ca.uhn.fhir.rest.client.api.IGenericClient
 import gov.nist.asbestos.fproxy.events.EventStoreItem
 import gov.nist.asbestos.fproxy.events.EventStoreItemFactory
-import gov.nist.asbestos.simapi.http.operations.HttpBase
-import gov.nist.asbestos.simapi.http.operations.HttpDelete
-import gov.nist.asbestos.simapi.http.operations.HttpGet
-import gov.nist.asbestos.simapi.http.operations.HttpPost
-import gov.nist.asbestos.simapi.http.operations.ParameterBuilder
+import HttpBase
+import HttpDelete
+import HttpGet
+import HttpPost
+import ParameterBuilder
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import org.hl7.fhir.r4.model.Bundle
